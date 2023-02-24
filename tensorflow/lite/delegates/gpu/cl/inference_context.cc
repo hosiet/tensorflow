@@ -27,6 +27,12 @@ limitations under the License.
 #include <utility>
 #include <vector>
 
+// anchor:quantresearch:start
+// print to log file on related program opencl source code
+#include <cstdio>
+#include <cstdlib>
+// anchor:quantresearch:end
+
 #include "absl/container/flat_hash_map.h"
 #include "absl/container/flat_hash_set.h"
 #include "tensorflow/lite/delegates/gpu/cl/buffer.h"
@@ -986,9 +992,25 @@ void InferenceContext::BindMemoryToOperations() {
 
 absl::Status InferenceContext::Compile(
     const CreationContext& creation_context) {
+  // anchor:quantresearch:start
+  FILE *fp;
+  fp = fopen("/sdcard/researchlog.txt", "w");
+  if (fp == nullptr) {
+    abort();
+  }
+  fprintf(fp, "Program code:\n\n");
+  // anchor:quantresearch:end
   for (auto& node : nodes_) {
     RETURN_IF_ERROR(node.cl_operation.Compile(creation_context));
+    // anchor:quantresearch:start
+    // print to log file on related program opencl source code
+    fprintf(fp, "%s\n", node.cl_operation.GetGpuOperation().code_.c_str());
+    // anchor:quantresearch:end
   }
+  // anchor:quantresearch:start
+  fprintf(fp, "Program code end!\n");
+  fclose(fp);
+  // anchor:quantresearch:end
   return absl::OkStatus();
 }
 
