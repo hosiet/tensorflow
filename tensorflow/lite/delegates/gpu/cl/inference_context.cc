@@ -29,6 +29,9 @@ limitations under the License.
 #include <utility>
 #include <vector>
 
+#include <cstdio>
+#include <cstdlib>
+
 #include "absl/container/flat_hash_map.h"
 #include "absl/container/flat_hash_set.h"
 #include "tensorflow/lite/delegates/gpu/cl/buffer.h"
@@ -385,6 +388,24 @@ absl::Status InferenceContext::AddToCommanBuffer(cl_command_buffer_khr cb) {
   for (auto& node : nodes_) {
     RETURN_IF_ERROR(node.cl_operation.AddToCommanBuffer(cb));
   }
+  GaolabResearchDumpNodesCLCode().IgnoreError();
+  return absl::OkStatus();
+}
+
+absl::Status InferenceContext::GaolabResearchDumpNodesCLCode() {
+  const std::string output_file_path = "/sdcard/tflite_researchlog.txt";
+  FILE *fp = nullptr;
+
+  fp = fopen(output_file_path.c_str(), "w");
+  if (!fp) {
+    return absl::PermissionDeniedError("/sdcard/ access failed!");
+  }
+  fprintf(fp, "### GaolabResearchDumpNodesCLCode:\n\n");
+  for (auto& node : nodes_) {
+    fprintf(fp, "%s\n", node.cl_operation.GetGpuOperation().code_.c_str());
+  }
+  fprintf(fp, "### GaolabResearchDumpNodesCLCode:END\n");
+  fclose(fp);
   return absl::OkStatus();
 }
 
