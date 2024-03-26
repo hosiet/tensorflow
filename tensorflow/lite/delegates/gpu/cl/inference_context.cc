@@ -55,6 +55,8 @@ limitations under the License.
 #include "tensorflow/lite/delegates/gpu/common/types.h"
 #include "tensorflow/lite/delegates/gpu/common/util.h"
 
+#include "tensorflow/lite/minimal_logging.h"
+
 namespace tflite {
 namespace gpu {
 namespace cl {
@@ -388,24 +390,28 @@ absl::Status InferenceContext::AddToCommanBuffer(cl_command_buffer_khr cb) {
   for (auto& node : nodes_) {
     RETURN_IF_ERROR(node.cl_operation.AddToCommanBuffer(cb));
   }
-  GaolabResearchDumpNodesCLCode().IgnoreError();
+  GaolabResearchDumpNodesCLCode(std::string("::AddToCommanBuffer")).IgnoreError();
   return absl::OkStatus();
 }
 
-absl::Status InferenceContext::GaolabResearchDumpNodesCLCode() {
+absl::Status InferenceContext::GaolabResearchDumpNodesCLCode(std::string& callerID) {
   const std::string output_file_path = "/sdcard/tflite_researchlog.txt";
   FILE *fp = nullptr;
 
+  TFLITE_LOG_PROD(TFLITE_LOG_INFO, "Entering DumpNodesCLCode() from %s ...", callerID.c_str());
   fp = fopen(output_file_path.c_str(), "w");
   if (!fp) {
+    TFLITE_LOG_PROD(TFLITE_LOG_WARNING, "DumpNodes failed! File access denied!");
     return absl::PermissionDeniedError("/sdcard/ access failed!");
   }
   fprintf(fp, "### GaolabResearchDumpNodesCLCode:\n\n");
   for (auto& node : nodes_) {
+    TFLITE_LOG_PROD(TFLITE_LOG_INFO, "Dumping node ...");
     fprintf(fp, "%s\n", node.cl_operation.GetGpuOperation().code_.c_str());
   }
   fprintf(fp, "### GaolabResearchDumpNodesCLCode:END\n");
   fclose(fp);
+  TFLITE_LOG_PROD(TFLITE_LOG_INFO, "Done GaolabResearchDumpNodesCLCode() !");
   return absl::OkStatus();
 }
 
@@ -769,6 +775,7 @@ absl::Status InferenceContext::Compile(
   for (auto& node : nodes_) {
     RETURN_IF_ERROR(node.cl_operation.Compile(creation_context));
   }
+  GaolabResearchDumpNodesCLCode(std::string("::Compile")).IgnoreError();
   return absl::OkStatus();
 }
 

@@ -420,6 +420,7 @@ cc_library(
         ":recordable_queue_builder",
         ":serialization_cc_fbs",
         ":tensor",
+        "//tensorflow/lite:minimal_logging",
         "//tensorflow/lite/delegates/gpu/common:data_type",
         "//tensorflow/lite/delegates/gpu/common:gpu_model",
         "//tensorflow/lite/delegates/gpu/common:gpu_model_cc_fbs",
