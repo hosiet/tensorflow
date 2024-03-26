@@ -119,7 +119,7 @@ class InferenceContext {
   void InitFromGpuModel(GpuModel* gpu_model);
 
   // Research purpose: dump all code assosiated with this->code_
-  absl::Status GaolabResearchDumpNodesCLCode();
+  absl::Status GaolabResearchDumpNodesCLCode(std::string callerID);
 
   absl::Status AllocateMemory(const GpuModel& gpu_model,
                               const GpuInfo& gpu_info,

@@ -394,15 +394,15 @@ absl::Status InferenceContext::AddToCommanBuffer(cl_command_buffer_khr cb) {
   return absl::OkStatus();
 }
 
-absl::Status InferenceContext::GaolabResearchDumpNodesCLCode(std::string& callerID) {
-  const std::string output_file_path = "/sdcard/tflite_researchlog.txt";
+absl::Status InferenceContext::GaolabResearchDumpNodesCLCode(std::string callerID) {
+  const std::string output_file_path = "/sdcard/Download/tflite_researchlog.txt";
   FILE *fp = nullptr;
 
   TFLITE_LOG_PROD(TFLITE_LOG_INFO, "Entering DumpNodesCLCode() from %s ...", callerID.c_str());
   fp = fopen(output_file_path.c_str(), "w");
   if (!fp) {
     TFLITE_LOG_PROD(TFLITE_LOG_WARNING, "DumpNodes failed! File access denied!");
-    return absl::PermissionDeniedError("/sdcard/ access failed!");
+    return absl::PermissionDeniedError("/sdcard/Download/ access failed!");
   }
   fprintf(fp, "### GaolabResearchDumpNodesCLCode:\n\n");
   for (auto& node : nodes_) {
