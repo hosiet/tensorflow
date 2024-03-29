@@ -199,7 +199,7 @@ class OpBuilder {
     *max = 0;
     const TfLiteQuantization& quant = tensor.quantization;
     if (quant.type != TfLiteQuantizationType::kTfLiteAffineQuantization) {
-      printf("Tensor not quantized: %s\n", tensor.name);
+      printf("OpBuilder: Tensor not quantized: %s\n", tensor.name);
       return kTfLiteError;
     }
     const TfLiteAffineQuantization* params =

@@ -165,7 +165,7 @@ absl::Status PopulateQuantParams(const TfLiteTensor& tensor,
   const TfLiteQuantization& quant = tensor.quantization;
   if (quant.type != TfLiteQuantizationType::kTfLiteAffineQuantization) {
     return absl::InvalidArgumentError(
-        absl::StrCat("Tensor not quantized: ", std::string(tensor.name)));
+        absl::StrCat("PopulateQuantParams(): Tensor not quantized: ", std::string(tensor.name)));
   }
   const TfLiteAffineQuantization* params =
       static_cast<const TfLiteAffineQuantization*>(quant.params);
