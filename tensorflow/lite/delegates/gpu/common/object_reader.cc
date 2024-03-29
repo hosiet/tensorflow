@@ -48,9 +48,12 @@ absl::Status ObjectReader::ReadNonConstantTensor(
           "ReadNonConstantTensor: value is a constant tensor: ", tensor_idx));
     }
 
-    if ((tflite_tensor->type == kTfLiteInt8 ||
+    // FIXME! BUGGY! TODO: Force ignore the quantization/dequantization tasks!
+    // Gaolab research work; TODO: should remove the added "false ||" and
+    // replace with more robust way to detect u8/i8 without quantization needs!
+    if (false && ((tflite_tensor->type == kTfLiteInt8 ||
          tflite_tensor->type == kTfLiteUInt8) &&
-        quant_conversion_map) {
+        quant_conversion_map)) {
       // Quantized case
       if (quant_conversion_map->find(tensor_idx) ==
           quant_conversion_map->end()) {
