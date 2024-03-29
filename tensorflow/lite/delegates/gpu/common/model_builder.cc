@@ -3307,7 +3307,9 @@ TfLiteIntArray* GetOpsToReplace(
       return false;
     }
 
-    std::vector<TfLiteType> allowed_in_types = {kTfLiteFloat32, kTfLiteFloat16};
+    //std::vector<TfLiteType> allowed_in_types = {kTfLiteFloat32, kTfLiteFloat16};
+    // Modification by Gaolab research
+    std::vector<TfLiteType> allowed_in_types = {kTfLiteFloat32, kTfLiteFloat16, kTfLiteInt8, kTfLiteUInt8};
     std::vector<TfLiteType> allowed_out_types = {kTfLiteFloat32,
                                                  kTfLiteFloat16};
     if (allow_quant_ops) {
