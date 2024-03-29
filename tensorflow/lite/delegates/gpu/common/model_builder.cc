@@ -3300,12 +3300,13 @@ TfLiteIntArray* GetOpsToReplace(
       [=](TfLiteContext* context, TfLiteNode* node,
           TfLiteRegistration* registration,
           std::string* unsupported_details) -> bool {
-    TFLITE_LOG_GAOLAB(TFLITE_LOG_INFO, "GetOpsToReplace(): %s", "Entering function...");
+    TFLITE_LOG_GAOLAB(TFLITE_LOG_INFO, "GetOpsToReplace(): %s", "Entering anon node_supported_fn...");
     const auto status =
         IsSupported(context, node, registration, allow_quant_ops, excluded_ops);
     if (!status.ok()) {
       if (unsupported_details) {
         *unsupported_details = std::string(status.message());
+        TFLITE_LOG_GAOLAB(TFLITE_LOG_INFO, "anon node_supported_fn: unsupported detail: %s", (*unsupported_details).c_str());
       }
       return false;
     }
