@@ -80,6 +80,8 @@ class MinimalLogger {
     (void)s_logged;                                    \
   } while (false);
 
+#define TFLITE_LOG_GAOLAB TFLITE_LOG_PROD
+
 #ifndef NDEBUG
 // In debug builds, always log.
 #define TFLITE_LOG TFLITE_LOG_PROD

@@ -56,6 +56,8 @@ limitations under the License.
 #include "tensorflow/lite/tools/versioning/gpu_compatibility.h"
 #include "tensorflow/lite/util.h"
 
+#include "tensorflow/lite/minimal_logging.h"
+
 namespace tflite {
 namespace gpu {
 namespace {
@@ -3298,6 +3300,7 @@ TfLiteIntArray* GetOpsToReplace(
       [=](TfLiteContext* context, TfLiteNode* node,
           TfLiteRegistration* registration,
           std::string* unsupported_details) -> bool {
+    TFLITE_LOG_GAOLAB(TFLITE_LOG_INFO, "GetOpsToReplace(): %s", "Entering function...");
     const auto status =
         IsSupported(context, node, registration, allow_quant_ops, excluded_ops);
     if (!status.ok()) {
@@ -3353,7 +3356,7 @@ TfLiteIntArray* GetOpsToReplace(
       return false;
     }
     return true;
-  };
+  };  // node_supported_fn anonymous function
 
   delegates::FP16GraphPartitionHelper partition_helper(context,
                                                        node_supported_fn);
@@ -3392,6 +3395,7 @@ TfLiteIntArray* GetOpsToReplace(
     }
     absl::StrAppend(&error_message, " operations will run on the CPU.");
     TF_LITE_KERNEL_LOG(context, error_message.c_str());
+    TFLITE_LOG_GAOLAB(TFLITE_LOG_WARNING, "GetOpsToReplace(): unsupported nodes found!\n%s", error_message.c_str());
   }
   return ConvertVectorToTfLiteIntArray(ops_to_replace);
 }

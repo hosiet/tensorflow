@@ -394,13 +394,13 @@ absl::Status InferenceContext::AddToCommanBuffer(cl_command_buffer_khr cb) {
 absl::Status InferenceContext::GaolabResearchDumpNodesCLCode(std::string callerID) {
   std::string outputString = {};
 
-  TFLITE_LOG_PROD(TFLITE_LOG_INFO, "Entering DumpNodesCLCode() from %s ...", callerID.c_str());
+  TFLITE_LOG_GAOLAB(TFLITE_LOG_INFO, "Entering DumpNodesCLCode() from %s ...", callerID.c_str());
   for (auto& node : nodes_) {
-    TFLITE_LOG_PROD(TFLITE_LOG_INFO, "Dumping node '%s'...", node.name);
-    outputString = outputString + "* node name: '" + node.name + "'\n" + node.cl_operation.GetGpuOperation().code_.c_str() + "\n";
+    TFLITE_LOG_GAOLAB(TFLITE_LOG_INFO, "Dumping node '%s'...", node.name.c_str());
+    outputString = outputString + "* node name: '" + node.name.c_str() + "'\n" + node.cl_operation.GetGpuOperation().code_.c_str() + "\n";
   }
   tflite::logging_internal::GaolabDumpString(outputString);
-  TFLITE_LOG_PROD(TFLITE_LOG_INFO, "Done GaolabResearchDumpNodesCLCode() !");
+  TFLITE_LOG_GAOLAB(TFLITE_LOG_INFO, "Done GaolabResearchDumpNodesCLCode() !");
   return absl::OkStatus();
 }
 

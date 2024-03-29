@@ -240,6 +240,7 @@ cc_library(
         ":tensor",
         "//tensorflow/lite:framework",
         "//tensorflow/lite:kernel_api",
+        "//tensorflow/lite:minimal_logging",
         "//tensorflow/lite:util",
         "//tensorflow/lite/core:framework",
         "//tensorflow/lite/core/api",
