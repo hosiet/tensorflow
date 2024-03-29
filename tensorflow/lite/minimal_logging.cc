@@ -16,6 +16,7 @@ limitations under the License.
 #include "tensorflow/lite/minimal_logging.h"
 
 #include <cstdarg>
+#include <sstream>
 
 namespace tflite {
 namespace logging_internal {
@@ -51,6 +52,26 @@ LogSeverity MinimalLogger::SetMinimumLogSeverity(LogSeverity new_severity) {
   LogSeverity old_severity = MinimalLogger::minimum_log_severity_;
   MinimalLogger::minimum_log_severity_ = new_severity;
   return old_severity;
+}
+
+void GaolabDumpString(std::string &dumpStr) {
+  const std::string output_file_path = "/sdcard/Download/tflite_researchlog.txt";
+  FILE *fp = nullptr;
+  std::time_t curr_time = std::time(nullptr);
+  std::stringstream strm;
+  strm << curr_time;
+  std::string curr_time_str = strm.str();
+
+  fp = fopen(output_file_path.c_str(), "wa");
+  if (!fp) {
+    TFLITE_LOG_PROD(TFLITE_LOG_WARNING, "DumpNodes failed! File access denied!");
+    return;
+  }
+  fprintf(fp, "### GaolabDumpString:\n%s\n", curr_time_str.c_str());
+  fprintf(fp, "%s\n", dumpStr.c_str());
+  fprintf(fp, "### GaolabDumpString:END\n");
+  fclose(fp);
+  return;
 }
 
 }  // namespace logging_internal

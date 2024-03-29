@@ -16,6 +16,10 @@ limitations under the License.
 #define TENSORFLOW_LITE_MINIMAL_LOGGING_H_
 
 #include <cstdarg>
+#include <cstdio>
+#include <cstdlib>
+#include <ctime>
+#include <string>
 
 #include "tensorflow/lite/logger.h"
 
@@ -88,5 +92,14 @@ class MinimalLogger {
   }
 #define TFLITE_LOG_ONCE TFLITE_LOG
 #endif
+
+namespace tflite {
+
+namespace logging_internal {
+
+void GaolabDumpString(std::string &dumpStr);
+
+}  // namespace logging_internal
+}  // namespace tflite
 
 #endif  // TENSORFLOW_LITE_MINIMAL_LOGGING_H_
