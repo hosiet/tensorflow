@@ -35,6 +35,7 @@ cc_library(
         ":opencl_wrapper",
         ":tensor",
         ":tensor_type_util",
+        "//tensorflow/lite:minimal_logging",
         "//tensorflow/lite/delegates/gpu:api",
         "//tensorflow/lite/delegates/gpu:tflite_profile",
         "//tensorflow/lite/delegates/gpu/cl/kernels:converter",

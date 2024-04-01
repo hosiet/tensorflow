@@ -21,10 +21,13 @@ limitations under the License.
 #include "tensorflow/lite/delegates/gpu/delegate.h"
 
 #include "tensorflow/lite/logger.h"
+#include "tensorflow/lite/minimal_logging.h"
 
 #if defined(__ANDROID__)
 #include <android/hardware_buffer.h>
 #endif
+
+#include <cinttypes>
 
 #include <algorithm>
 #include <cstdint>
@@ -495,23 +498,28 @@ absl::Status DelegateKernelCore::Setup(
   // At this point, TFLite hasn't allocated tensors yet, therefore, collect
   // indices and set all input and output tensors from TFLite later.
   input_indices_.reserve(input_refs.size());
+  TFLITE_LOG_GAOLAB(TFLITE_LOG_INFO, "DelegateKernelCore::Setup(): %s", "before loop input_refs ...");
   for (uint32_t tensor_index : input_refs) {
     const int64_t object_index = input_indices_.size();
     input_indices_.push_back(tensor_index);
     const TfLiteTensor& tflite_tensor = context->tensors[tensor_index];
     const DataType data_type = ToDataType(tflite_tensor.type);
+    TFLITE_LOG_GAOLAB(TFLITE_LOG_INFO, "DelegateKernelCore::Setup(): loop_in: tensor_index %" PRIu32 " ...", tensor_index);
     RETURN_IF_ERROR(builder->SetInputObjectDef(
         object_index, GetObjectDef(tensor_index, data_type)));
   }
   output_indices_.reserve(output_refs.size());
+  TFLITE_LOG_GAOLAB(TFLITE_LOG_INFO, "DelegateKernelCore::Setup(): %s", "before loop output_refs ...");
   for (uint32_t tensor_index : output_refs) {
     const int64_t object_index = output_indices_.size();
     output_indices_.push_back(tensor_index);
     const TfLiteTensor& tflite_tensor = context->tensors[tensor_index];
     const DataType data_type = ToDataType(tflite_tensor.type);
+    TFLITE_LOG_GAOLAB(TFLITE_LOG_INFO, "DelegateKernelCore::Setup(): loop_out: tensor_index %" PRIu32 " ...", tensor_index);
     RETURN_IF_ERROR(builder->SetOutputObjectDef(
         object_index, GetObjectDef(tensor_index, data_type)));
   }
+  TFLITE_LOG_GAOLAB(TFLITE_LOG_INFO, "DelegateKernelCore::Setup(): %s", "after loop output_refs ...");
 
   return builder->Build(&runner_);
 }

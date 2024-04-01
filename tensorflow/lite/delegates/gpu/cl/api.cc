@@ -15,6 +15,8 @@ limitations under the License.
 
 #include "tensorflow/lite/delegates/gpu/cl/api.h"
 
+#include "tensorflow/lite/minimal_logging.h"
+
 #include <utility>
 
 #ifndef CL_DELEGATE_NO_GL
@@ -107,11 +109,14 @@ class DefaultTensorTie : public TensorTie {
       return true;
     }
 #endif
+    bool builder_def_int_ext = converter_builder.IsSupported(def.internal_def, def.external_def);
+    bool builder_def_ext_int = converter_builder.IsSupported(def.external_def, def.internal_def);
+    TFLITE_LOG_GAOLAB(TFLITE_LOG_INFO, "DefaultTensorTie: IsSupported(): object_type: %d; def_ie: %d; def_ei: %d", (int) object_type, (int) builder_def_int_ext, (int) builder_def_int_ext);
     return (object_type == ObjectType::OPENCL_BUFFER ||
             object_type == ObjectType::OPENCL_TEXTURE ||
             object_type == ObjectType::CPU_MEMORY) &&
-           converter_builder.IsSupported(def.internal_def, def.external_def) &&
-           converter_builder.IsSupported(def.external_def, def.internal_def);
+           builder_def_int_ext &&
+           builder_def_int_ext;
   }
 
   static absl::Status New(const TensorTieDef& def, TensorObject internal_object,
@@ -403,14 +408,39 @@ class TensorTieFactory {
   }
 
   bool IsSupported(const TensorTieDef& def) const {
-    return IsValid(def.external_def.object_def) &&
-           (NoopTensorTie::IsSupported(def) ||
-            DefaultTensorTie::IsSupported(def, *converter_builder_) ||
+    TFLITE_LOG_GAOLAB(TFLITE_LOG_INFO, "TensorTieFactory: IsSupported(): %s", "Starting ... printing TensorTieDef def::");
+    TFLITE_LOG_GAOLAB(TFLITE_LOG_INFO, "TensorTieFactory: IsSupported(): .id: %d;", (int) def.id);
+    TFLITE_LOG_GAOLAB(TFLITE_LOG_INFO, "TensorTieFactory: IsSupported(): .access_type: %d;", (int) def.access_type);
+    TFLITE_LOG_GAOLAB(TFLITE_LOG_INFO, "TensorTieFactory: IsSupported(): .internal_def.dimensions: %d %d %d %d;", (int) def.internal_def.dimensions.b, (int) def.internal_def.dimensions.h, (int) def.internal_def.dimensions.w, (int) def.internal_def.dimensions.c);
+    TFLITE_LOG_GAOLAB(TFLITE_LOG_INFO, "TensorTieFactory: IsSupported(): .external_def.dimensions: %d %d %d %d;", (int) def.external_def.dimensions.b, (int) def.external_def.dimensions.h, (int) def.external_def.dimensions.w, (int) def.external_def.dimensions.c);
+    TFLITE_LOG_GAOLAB(TFLITE_LOG_INFO, "TensorTieFactory: IsSupported(): .internal_def.object_def.data_type: %d;", (int) def.internal_def.object_def.data_type);
+    TFLITE_LOG_GAOLAB(TFLITE_LOG_INFO, "TensorTieFactory: IsSupported(): .internal_def.object_def.data_layout: %d;", (int) def.internal_def.object_def.data_layout);
+    TFLITE_LOG_GAOLAB(TFLITE_LOG_INFO, "TensorTieFactory: IsSupported(): .internal_def.object_def.object_type: %d;", (int) def.internal_def.object_def.object_type);
+    TFLITE_LOG_GAOLAB(TFLITE_LOG_INFO, "TensorTieFactory: IsSupported(): .external_def.object_def.data_type: %d;", (int) def.external_def.object_def.data_type);
+    TFLITE_LOG_GAOLAB(TFLITE_LOG_INFO, "TensorTieFactory: IsSupported(): .external_def.object_def.data_layout: %d;", (int) def.external_def.object_def.data_layout);
+    TFLITE_LOG_GAOLAB(TFLITE_LOG_INFO, "TensorTieFactory: IsSupported(): .external_def.object_def.object_type: %d;", (int) def.external_def.object_def.object_type);
+
+    
+    bool is_valid_bool = IsValid(def.external_def.object_def);
+    TFLITE_LOG_GAOLAB(TFLITE_LOG_INFO, "TensorTieFactory: IsSupported(): is_valid_bool: %d", (int) is_valid_bool);
+
+    bool is_valid_noop_tie_bool = NoopTensorTie::IsSupported(def);
+    TFLITE_LOG_GAOLAB(TFLITE_LOG_INFO, "TensorTieFactory: IsSupported(): NoopTensorTieValid?: %d", (int) is_valid_noop_tie_bool);
+
+    bool is_valid_default_tie_bool = DefaultTensorTie::IsSupported(def, *converter_builder_);
+    TFLITE_LOG_GAOLAB(TFLITE_LOG_INFO, "TensorTieFactory: IsSupported(): DefaultTensorTieValid?: %d", (int) is_valid_default_tie_bool);
+
+    bool is_valid_twostep_tie_bool = TwoStepTensorTie::IsSupported(def, *converter_builder_);
+    TFLITE_LOG_GAOLAB(TFLITE_LOG_INFO, "TensorTieFactory: IsSupported(): TwoStepTensorTieValid?: %d", (int) is_valid_twostep_tie_bool);
+
+    return is_valid_bool &&
+           (is_valid_noop_tie_bool ||
+            is_valid_default_tie_bool ||
 #ifdef CL_DELEGATE_ALLOW_GL
             (gl_interop_fabric_ &&
              GlBufferHolder::IsSupported(def, *converter_builder_)) ||
 #endif
-            TwoStepTensorTie::IsSupported(def, *converter_builder_));
+            is_valid_twostep_tie_bool);
   }
 
   absl::Status NewTensorTie(const TensorTieDef& def,
