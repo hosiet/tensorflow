@@ -481,13 +481,16 @@ absl::Status CheckGpuDelegateCompatibility(const OpSignature& op_sig) {
                   op_sig.inputs.at(0).type == kTfLiteFloat32) &&
                  op_sig.outputs.at(0).type == kTfLiteBool) {
         return absl::OkStatus();
-      // Gaolab research modification: allow int8/uint8
+      // Gaolab research modification: allow int8/uint8 input and output
       } else if ((op_sig.inputs.at(0).type == kTfLiteFloat32 ||
                   op_sig.inputs.at(0).type == kTfLiteInt32 ||
                   op_sig.inputs.at(0).type == kTfLiteUInt8 ||
                   op_sig.inputs.at(0).type == kTfLiteInt8) &&
                  (op_sig.outputs.at(0).type == kTfLiteFloat32 ||
-                  op_sig.outputs.at(0).type == kTfLiteInt32)) {
+                  op_sig.outputs.at(0).type == kTfLiteInt32 ||
+                  op_sig.outputs.at(0).type == kTfLiteUInt8 ||
+                  op_sig.outputs.at(0).type == kTfLiteInt8
+                  )) {
         return absl::OkStatus();
       } else {
         return absl::UnimplementedError(absl::StrCat(

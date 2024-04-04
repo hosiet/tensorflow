@@ -3311,11 +3311,10 @@ TfLiteIntArray* GetOpsToReplace(
       return false;
     }
 
-    //std::vector<TfLiteType> allowed_in_types = {kTfLiteFloat32, kTfLiteFloat16};
     // Modification by Gaolab research
     std::vector<TfLiteType> allowed_in_types = {kTfLiteFloat32, kTfLiteFloat16, kTfLiteInt8, kTfLiteUInt8};
-    std::vector<TfLiteType> allowed_out_types = {kTfLiteFloat32,
-                                                 kTfLiteFloat16};
+    std::vector<TfLiteType> allowed_out_types = {kTfLiteFloat32, kTfLiteFloat16, kTfLiteInt8, kTfLiteUInt8};
+    // END: Modification by Gaolab research
     if (allow_quant_ops) {
       // Since we only check non-constant tensors, type cannot be Int32.
       allowed_in_types.push_back(kTfLiteInt8);
