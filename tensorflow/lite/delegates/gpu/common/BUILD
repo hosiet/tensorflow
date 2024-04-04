@@ -57,6 +57,7 @@ cc_library(
         ":model_hints",
         ":operations",
         ":status",
+        "//tensorflow/lite:minimal_logging",
         "//tensorflow/lite/delegates/gpu/common:gpu_model_cc_fbs",
         "//tensorflow/lite/delegates/gpu/common/selectors:operation_selector",
         "//tensorflow/lite/delegates/gpu/common/selectors:special_selector",

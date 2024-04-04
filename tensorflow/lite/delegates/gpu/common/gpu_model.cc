@@ -34,6 +34,8 @@ limitations under the License.
 #include "tensorflow/lite/delegates/gpu/common/transformations/global_pooling_to_reduce_op.h"
 #include "tensorflow/lite/delegates/gpu/common/transformations/merge_padding_with.h"
 
+#include "tensorflow/lite/minimal_logging.h"
+
 namespace tflite {
 namespace gpu {
 
@@ -267,6 +269,7 @@ absl::Status ConvertOperations(const GpuInfo& gpu_info,
                                TensorReserver* tensor_reserver,
                                GpuModel* gpu_model) {
   std::map<ValueId, TensorDescriptor> tensor_descriptors;
+  TFLITE_LOG_GAOLAB(TFLITE_LOG_INFO, "ConvertOperations(): create_info.precision: %d", create_info.precision);
   const auto values = graph.values();
   for (auto value : values) {
     tensor_descriptors[value->id] = tensor_reserver->Get(value->id);
