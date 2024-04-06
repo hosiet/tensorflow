@@ -288,6 +288,7 @@ cc_library(
         ":cl_device",
         ":opencl_wrapper",
         ":util",
+        "//tensorflow/lite:minimal_logging",
         "//tensorflow/lite/delegates/gpu/common:status",
         "//tensorflow/lite/delegates/gpu/common/task:compiler_options",
         "@com_google_absl//absl/strings",
