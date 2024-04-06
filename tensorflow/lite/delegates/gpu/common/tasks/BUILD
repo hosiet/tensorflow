@@ -34,6 +34,7 @@ cc_library(
     srcs = ["cast.cc"],
     hdrs = ["cast.h"],
     deps = [
+        "//tensorflow/lite:minimal_logging",
         "//tensorflow/lite/delegates/gpu/common/task:gpu_operation",
         "//tensorflow/lite/delegates/gpu/common/task:util",
         "@com_google_absl//absl/strings",

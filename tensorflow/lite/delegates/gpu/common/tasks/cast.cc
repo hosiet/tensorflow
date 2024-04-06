@@ -20,20 +20,95 @@ limitations under the License.
 #include <utility>
 #include <vector>
 
+#include "absl/strings/str_replace.h"
 #include "absl/strings/substitute.h"
 #include "tensorflow/lite/delegates/gpu/common/task/util.h"
+#include "tensorflow/lite/minimal_logging.h"
 
 namespace tflite {
 namespace gpu {
+
+// Gaolab research: restore old impl of GetCastKernelCode() function
+namespace {
+std::string GetCastKernelCodeInt8Variant(const OperationDef& op_def,
+                              const GpuInfo& gpu_info) {
+  std::string c;
+  std::string coords = "X, Y";
+  c += "MAIN_FUNCTION($0) {\n";
+  if (op_def.dst_tensors[0].HasAxis(Axis::DEPTH)) {
+    c += "  int linear_id_1 = GLOBAL_ID_1;\n";
+    c += "  int Y = linear_id_1 / args.dst_tensor.Depth();\n";
+    c += "  int Z = linear_id_1 % args.dst_tensor.Depth();\n";
+    coords += ", Z";
+  } else {
+    c += "  int Y = GLOBAL_ID_1;\n";
+  }
+  coords += ", S";
+  if (op_def.dst_tensors[0].HasAxis(Axis::BATCH)) {
+    c += "  int linear_id_0 = GLOBAL_ID_0;\n";
+    c += "  int X = linear_id_0 / args.dst_tensor.Batch();\n";
+    c += "  int B = linear_id_0 % args.dst_tensor.Batch();\n";
+    coords += ", B";
+  } else {
+    c += "  int X = GLOBAL_ID_0;\n";
+  }
+  c += "  int S = GLOBAL_ID_2;\n";
+  c += "  if (X >= args.dst_tensor.Width() || Y >= args.dst_tensor.Height() || "
+       "S >= args.dst_tensor.Slices()) { \n";
+  c += "    return; \n";
+  c += "  } \n";
+  c += "  args.src_tensor::type src_value = args.src_tensor.Read(" + coords +
+       ");\n";
+  /*
+  const std::string conversion =
+      GetTypeConversion(gpu_info, op_def.src_tensors[0].GetDataType(),
+                        op_def.dst_tensors[0].GetDataType(), 4);
+  */
+  // Instead of only using the original impl above, we optimize for only UINT8/INT8 output
+  std::string conversion =
+      GetTypeConversion(gpu_info, op_def.src_tensors[0].GetDataType(),
+                        op_def.dst_tensors[0].GetDataType(), 4);
+  // After step1, the sample output is like: "out_value = convert_uchar4(in_value);"
+  c += "  args.dst_tensor::type result = " +
+     absl::Substitute(conversion, "src_value") + ";\n";
+  if (op_def.dst_tensors[0].GetDataType() == tflite::gpu::DataType::UINT8) {
+    c += "  uint4 result_final = convert_uint4(result);\n";
+  } else {
+    c += "  int4 result_final = convert_int4(result);\n";
+  }
+  c += "  args.dst_tensor.Write(result_final, " + coords + ");\n";
+  c += "}\n";
+  // Gaolab: end of our modification
+  
+  return c;
+}
+}  // namespace
+
 GPUOperation CreateCast(const OperationDef& definition,
                         const GpuInfo& gpu_info) {
   ElementwiseDescriptor op_desc;
-  const std::string conversion =
-      GetTypeConversion(gpu_info, definition.src_tensors[0].GetDataType(),
-                        definition.dst_tensors[0].GetDataType(), 4);
-  op_desc.code =
-      "out_value = " + absl::Substitute(conversion, "in_value") + ";\n";
-  return CreateGpuOperation(definition, std::move(op_desc));
+
+  // Gaolab research: if dst_tensor is of int8 or uint8, do not use elementwise operation.
+  //                  Use the old impl with modification handling instead.
+  if ((definition.dst_tensors[0].GetDataType() == tflite::gpu::DataType::UINT8) ||
+       definition.dst_tensors[0].GetDataType() == tflite::gpu::DataType::INT8) {
+    // use the old implementation before b6d753d4af8de0a30a15faad5aef54f770337e18
+    GPUOperation op(definition);
+    op.AddSrcTensor("src_tensor", definition.src_tensors[0]);
+    op.AddDstTensor("dst_tensor", definition.dst_tensors[0]);
+    op.code_ = GetCastKernelCodeInt8Variant(definition, gpu_info);
+    op.tensor_to_grid_ = TensorToGrid::kWBToX_HDToY_SToZ;
+    return op;
+  } else {
+    // the original "new" element-wise operation
+    const std::string conversion =
+        GetTypeConversion(gpu_info, definition.src_tensors[0].GetDataType(),
+                          definition.dst_tensors[0].GetDataType(), 4);
+    op_desc.code =
+        "out_value = " + absl::Substitute(conversion, "in_value") + ";\n";
+    TFLITE_LOG_GAOLAB(TFLITE_LOG_INFO, "CreateCast(): code: %s\ndefinition.dst_tensors[0].GetDataType(): %d\n", op_desc.code.c_str(), definition.dst_tensors[0].GetDataType());
+    return CreateGpuOperation(definition, std::move(op_desc));
+  }
 }
 
 }  // namespace gpu
