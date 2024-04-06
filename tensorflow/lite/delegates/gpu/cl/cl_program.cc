@@ -25,8 +25,6 @@ limitations under the License.
 #include "tensorflow/lite/delegates/gpu/cl/util.h"
 #include "tensorflow/lite/delegates/gpu/common/status.h"
 
-#include "tensorflow/lite/minimal_logging.h"
-
 namespace tflite {
 namespace gpu {
 namespace cl {
@@ -178,8 +176,6 @@ absl::Status CreateCLProgram(const std::string& code,
                              CLProgram* result) {
   int error_code;
   const char* source = code.c_str();
-
-  TFLITE_LOG_GAOLAB(TFLITE_LOG_INFO, "CreateCLProgram(): raw code to be dumped ... \n%s", source);
 
   cl_program program = clCreateProgramWithSource(context.context(), 1, &source,
                                                  nullptr, &error_code);

@@ -26,6 +26,9 @@ limitations under the License.
 #include "tensorflow/lite/delegates/gpu/common/status.h"
 #include <farmhash.h>
 
+
+#include "tensorflow/lite/minimal_logging.h"
+
 namespace tflite {
 namespace gpu {
 namespace cl {
@@ -91,6 +94,10 @@ absl::Status ProgramCache::GetOrCreateCLKernel(
   if (it != programs_.end()) {
     return result->CreateFromProgram(it->second, function_name);
   }
+
+  TFLITE_LOG_GAOLAB(TFLITE_LOG_INFO, "GetOrCreateCLKernel(): raw code to be dumped to file... ");
+  std::string code_nonconst = std::string("GetOrCreateCLKernel::\nfunction_name: ") + function_name + "\n" + code;
+  tflite::logging_internal::GaolabDumpString(code_nonconst);
 
   CLProgram program;
   RETURN_IF_ERROR(CreateCLProgram(code, options, context, device, &program));

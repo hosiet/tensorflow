@@ -62,7 +62,7 @@ void GaolabDumpString(std::string &dumpStr) {
   strm << curr_time;
   std::string curr_time_str = strm.str();
 
-  fp = fopen(output_file_path.c_str(), "wa");
+  fp = fopen(output_file_path.c_str(), "a");
   if (!fp) {
     TFLITE_LOG_GAOLAB(TFLITE_LOG_WARNING, "DumpNodes failed! File access denied!");
     return;
