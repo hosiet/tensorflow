@@ -32,10 +32,22 @@ limitations under the License.
 namespace tflite {
 namespace gpu {
 
+// RESEARCH_MODIFICATION: START: Override default invocation with is_io_tensor default to false
 absl::Status ObjectReader::ReadNonConstantTensor(
     TfLiteContext* context, absl::flat_hash_map<int, Value*>* tensor_to_value,
     absl::flat_hash_map<int, int>* quant_conversion_map, GraphFloat32* graph,
     uint32_t tensor_idx, Value** value) {
+  return ObjectReader::ReadNonConstantTensor(context, tensor_to_value, quant_conversion_map,
+                                          graph, tensor_idx, false, value);
+}
+// RESEARCH_MODIFICATION: END
+
+// RESEARCH_MODIFICATION: START: Change function signature to allow is_io_tensor parameter
+absl::Status ObjectReader::ReadNonConstantTensor(
+    TfLiteContext* context, absl::flat_hash_map<int, Value*>* tensor_to_value,
+    absl::flat_hash_map<int, int>* quant_conversion_map, GraphFloat32* graph,
+    uint32_t tensor_idx, bool is_io_tensor, Value** value) {
+// RESEARCH_MODIFICATION: END
   if (tensor_idx >= context->tensors_size) {
     return absl::OutOfRangeError(
         absl::StrCat("ReadNonConstTensor: input tensor index: ", tensor_idx));
@@ -48,10 +60,10 @@ absl::Status ObjectReader::ReadNonConstantTensor(
           "ReadNonConstantTensor: value is a constant tensor: ", tensor_idx));
     }
 
-    // RESEARCH_MODIFICATION: START: [FIXME] Unconditionally ignore quant/dequant tasks
-    // TODO: should replace it with a more robust way to detect input/outputs that does
-    // not need quantization.
-    if (false && ((tflite_tensor->type == kTfLiteInt8 ||
+    // RESEARCH_MODIFICATION: START: ignore quant/dequant tasks if is_io_tensor is set.
+    // This relies on flags being set in model_build.cc: PrecreateInputTensors() and
+    // PrecreateOutputTensors() function calls.
+    if ((! is_io_tensor) && ((tflite_tensor->type == kTfLiteInt8 ||
          tflite_tensor->type == kTfLiteUInt8) &&
         quant_conversion_map)) {
     // RESEARCH_MODIFICATION: END

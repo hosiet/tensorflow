@@ -41,6 +41,11 @@ class ObjectReader {
       absl::flat_hash_map<int, int>* quant_conversion_map, GraphFloat32* graph,
       uint32_t tensor_idx, Value** value = nullptr);
 
+  static absl::Status ReadNonConstantTensor(
+      TfLiteContext* context, absl::flat_hash_map<int, Value*>* tensor_to_value,
+      absl::flat_hash_map<int, int>* quant_conversion_map, GraphFloat32* graph,
+      uint32_t tensor_idx, bool is_io_tensor, Value** value = nullptr);
+
   ObjectReader(GraphFloat32* graph, TfLiteContext* context,
                const TfLiteNode* node,
                absl::flat_hash_map<int, Value*>* tensor_to_value,

@@ -3410,7 +3410,7 @@ absl::Status PrecreateInputTensors(
     const TfLiteTensor& tflite_tensor = context->tensors[id];
     if (tflite::IsConstantTensor(&tflite_tensor)) continue;
     RETURN_IF_ERROR(ObjectReader::ReadNonConstantTensor(
-        context, tensor_to_value, quant_conversion_map, graph, id));
+        context, tensor_to_value, quant_conversion_map, graph, id, true));
   }
   return absl::OkStatus();
 }
@@ -3429,7 +3429,7 @@ absl::Status PrecreateOutputTensors(
     if (tflite::IsConstantTensor(&tflite_tensor)) continue;
     Value* value;
     RETURN_IF_ERROR(ObjectReader::ReadNonConstantTensor(
-        context, tensor_to_value, quant_conversion_map, graph, id, &value));
+        context, tensor_to_value, quant_conversion_map, graph, id, true, &value));
     graph->AddKnownGraphOutput(value);
   }
   return absl::OkStatus();
