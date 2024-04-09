@@ -48,9 +48,13 @@ absl::Status ObjectReader::ReadNonConstantTensor(
           "ReadNonConstantTensor: value is a constant tensor: ", tensor_idx));
     }
 
-    if ((tflite_tensor->type == kTfLiteInt8 ||
+    // RESEARCH_MODIFICATION: START: [FIXME] Unconditionally ignore quant/dequant tasks
+    // TODO: should replace it with a more robust way to detect input/outputs that does
+    // not need quantization.
+    if (false && ((tflite_tensor->type == kTfLiteInt8 ||
          tflite_tensor->type == kTfLiteUInt8) &&
-        quant_conversion_map) {
+        quant_conversion_map)) {
+    // RESEARCH_MODIFICATION: END
       // Quantized case
       if (quant_conversion_map->find(tensor_idx) ==
           quant_conversion_map->end()) {
