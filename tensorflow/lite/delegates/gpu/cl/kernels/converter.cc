@@ -77,8 +77,11 @@ class OpenClConverterImpl : public TensorObjectConverter {
 };
 
 bool IsSupportedDataType(DataType type) {
+  // RESEARCH_MODIFICATION: START: Manually add UInt8 and Int8 to supported list.
   return type == DataType::FLOAT16 || type == DataType::FLOAT32 ||
-         type == DataType::INT32 || type == DataType::BOOL;
+         type == DataType::INT32 || type == DataType::BOOL ||
+         type == DataType::UINT8 || type == DataType::INT8;
+  // RESEARCH_MODIFICATION: END
 }
 
 bool IsBHWCOpenCLBuffer(const ObjectDef& def) {
