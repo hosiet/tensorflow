@@ -3310,13 +3310,15 @@ TfLiteIntArray* GetOpsToReplace(
     std::vector<TfLiteType> allowed_in_types = {kTfLiteFloat32, kTfLiteFloat16};
     std::vector<TfLiteType> allowed_out_types = {kTfLiteFloat32,
                                                  kTfLiteFloat16};
-    if (allow_quant_ops) {
+    // RESEARCH_MODIFICATION: START: Unconditionally accept Int8 and UInt8 inputs and outputs
+    if (true || allow_quant_ops) {
       // Since we only check non-constant tensors, type cannot be Int32.
       allowed_in_types.push_back(kTfLiteInt8);
       allowed_in_types.push_back(kTfLiteUInt8);
       allowed_out_types.push_back(kTfLiteInt8);
       allowed_out_types.push_back(kTfLiteUInt8);
     }
+    // RESEARCH_MODIFICATION: END
     if (IsLogicalCode(registration->builtin_code)) {
       allowed_out_types.push_back(kTfLiteBool);
     }
