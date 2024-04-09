@@ -16,6 +16,9 @@ limitations under the License.
 #define TENSORFLOW_LITE_MINIMAL_LOGGING_H_
 
 #include <cstdarg>
+// RESEARCH_MODIFICATION: START: Necessary headers for log dumping
+#include <string>
+// RESEARCH_MODIFICATION: END
 
 #include "tensorflow/lite/logger.h"
 
@@ -75,6 +78,16 @@ class MinimalLogger {
     }();                                               \
     (void)s_logged;                                    \
   } while (false);
+
+// RESEARCH_MODIFICATION: START: Custom logging macro
+#define TFLITE_LOG_RESEARCH TFLITE_LOG_PROD
+
+namespace tflite {
+  namespace logging_internal {
+    void ResearchDumpString(std::string &dumpStr);
+  }
+}
+// RESEARCH_MODIFICATION: END
 
 #ifndef NDEBUG
 // In debug builds, always log.

@@ -16,6 +16,12 @@ limitations under the License.
 #include "tensorflow/lite/minimal_logging.h"
 
 #include <cstdarg>
+// RESEARCH_MODIFICATION: START: Necessary headers for log dumping
+#include <cstdio>
+#include <cstdlib>
+#include <ctime>
+#include <sstream>
+// RESEARCH_MODIFICATION: END
 
 namespace tflite {
 namespace logging_internal {
@@ -52,6 +58,28 @@ LogSeverity MinimalLogger::SetMinimumLogSeverity(LogSeverity new_severity) {
   MinimalLogger::minimum_log_severity_ = new_severity;
   return old_severity;
 }
+
+// RESEARCH_MODIFICATION: START: Function to dump arbitrary string to /sdcard/Download/
+void ResearchDumpString(std::string &dumpStr) {
+  const std::string output_file_path = "/sdcard/Download/tflite_researchlog.txt";
+  FILE *fp = nullptr;
+  std::time_t curr_time = std::time(nullptr);
+  std::stringstream strm;
+  strm << curr_time;
+  std::string curr_time_str = strm.str();
+
+  fp = fopen(output_file_path.c_str(), "a");
+  if (!fp) {
+    TFLITE_LOG_RESEARCH(TFLITE_LOG_WARNING, "DumpNodes failed! File access denied!");
+    return;
+  }
+  fprintf(fp, "### ResearchDumpString:\n%s\n", curr_time_str.c_str());
+  fprintf(fp, "%s\n", dumpStr.c_str());
+  fprintf(fp, "### ResearchDumpString:END\n");
+  fclose(fp);
+  return;
+}
+// RESEARCH_MODIFICATION: END
 
 }  // namespace logging_internal
 }  // namespace tflite
